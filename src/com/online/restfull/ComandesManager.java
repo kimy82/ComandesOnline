@@ -59,9 +59,7 @@ public class ComandesManager {
     		
     		try {
 
-				BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );
-				
-				
+				BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );							
 				String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,diahora, address,telnumber);
 				writer.append(System.lineSeparator()+comandaBuild);
 				writer.flush();
