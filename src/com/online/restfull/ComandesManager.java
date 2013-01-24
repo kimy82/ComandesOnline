@@ -76,8 +76,9 @@ public class ComandesManager {
         }
     }
     
-    //PRIVATES
-    
+    //PRIVATES     #AC001*1*10005*1;Chiken;3.00;2;Beef;6.00;3;rice;2.50;*1.0*0;12.50;4;Tom;Address;15:47 03-08-10;113;7;cod:;008612345678;*Comment#0x0D0x0A
+
+
     
     public void removeLineFromFile(String file, String lineToRemove) throws RestFullException {
 
