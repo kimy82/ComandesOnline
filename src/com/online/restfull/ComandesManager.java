@@ -53,17 +53,28 @@ public class ComandesManager {
     						@QueryParam("address") String address,
     						@QueryParam("diahora") String diahora,
     						@QueryParam("telnumber") String telnumber,
-    						@QueryParam("comanda") String comanda) {
+    						@QueryParam("comanda") String comanda,
+    						@QueryParam("comandaName") String comName,
+    						@QueryParam("comandaHora") String comHora,
+    						@QueryParam("comandaEntrega") String comEnt,
+    						@QueryParam("comandaLimit") String comLim,
+    						@QueryParam("pagada") String pagada,
+    						@QueryParam("comment") String comments,
+    						@QueryParam("nomRest") String nomRest,
+    						@QueryParam("admin") String admin) {
         
     	if (resId!=null && !resId.equals("") && comanda!=null && !comanda.equals("")) {
     		
     		try {
 
 				BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );							
-				String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,diahora, address,telnumber);
+				String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,
+												   diahora, address,telnumber,comName,comHora,comEnt,comLim,
+												   pagada,comments,nomRest, admin);
 				writer.append(System.lineSeparator()+comandaBuild);
 				writer.flush();
 				writer.close();
+				
 			} catch (IOException e) {
 				return "No File problem"+e;
 			}catch(Exception e){
@@ -135,17 +146,27 @@ public class ComandesManager {
     
     private String buildComanda(String resId, String orderNum,  String comanda, 
     							String deliveryCharge, String total, String nom,
-    							String diahora,String address,String telnumber) throws Exception {
+    							String diahora,String address,String telnumber,
+    							String comName, String comHora,String comEnt,
+    							String comLim,String pagada, String comments, 
+    							String nomRest, String admin) throws Exception {
     	try{
     		
     	
-	    	StringBuffer comandaSB = new StringBuffer("#"+resId+"*1*"+orderNum+"*"+comanda);
-	
-	    	comandaSB.append("*"+deliveryCharge+"*0;"+total);
-	    	comandaSB.append(";4;"+nom+";"+address+";"+diahora+";");
-	    	comandaSB.append("113;6;cod:;"+telnumber+";*Comment#0x0D0x0A");
+	    	StringBuffer comandaSB = new StringBuffer("#"+resId+"**"+orderNum+"*"+comanda);
+	    	
+	    	if(admin.equals("true")){
+		    	comandaSB.append("**;"+total);
+		    	comandaSB.append(";;"+comName+nom+address+comHora+comEnt+comLim+pagada+telnumber+";;;");
+		    	comandaSB.append(";;;;*"+comments+"#0x0D0x0A");
+	    	}else{
+	    		comandaSB.append("**;"+total);
+		    	comandaSB.append(";;"+nomRest+comName+nom+comHora+comEnt+comLim+pagada+telnumber+"/rCHECKING/r A: /r R: /r E:/r;;;");
+		    	comandaSB.append(";;;;*"+comments+"#0x0D0x0A");
+	    	}
 	    	
 	    	return comandaSB.toString();
+	    	
     	}catch(Exception e){
     		throw new Exception("wrong params");
     	}
