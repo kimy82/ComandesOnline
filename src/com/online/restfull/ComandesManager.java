@@ -23,6 +23,7 @@ public class ComandesManager {
 	
 	@javax.ws.rs.core.Context ServletContext context;
 	
+	
     public ComandesManager() {
     	
     }
@@ -66,7 +67,8 @@ public class ComandesManager {
     	if (resId!=null && !resId.equals("") && comanda!=null && !comanda.equals("")) {
     		
     		try {
-
+    			
+    			
 				BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );							
 				String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,
 												   diahora, address,telnumber,comName,comHora,comEnt,comLim,
@@ -74,6 +76,8 @@ public class ComandesManager {
 				writer.append(System.lineSeparator()+comandaBuild);
 				writer.flush();
 				writer.close();
+				
+    			
 				
 			} catch (IOException e) {
 				return "No File problem"+e;
