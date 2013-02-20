@@ -161,12 +161,14 @@ public class ComandesManager {
 	    	
 	    	if(admin.equals("true")){
 		    	comandaSB.append("**;"+total);
-		    	comandaSB.append(";;"+comName+nom+address+comHora+comEnt+comLim+pagada+telnumber+";;;");
-		    	comandaSB.append(";;;;*"+comments+"#0x0D0x0A");
+		    	comandaSB.append(";;"+"---------------------------;"+comName+"%%"+nom+"%%"+address+"%%"+comHora+"%%"+comEnt+
+		    					 "%%"+comLim+"%%---------------------------%%"+pagada+"%%---------------------------%%"+telnumber+"%%---------------------------"+";;;");
+		    	comandaSB.append(";;;*"+comments+"%%---------------------------#0x0D0x0A");
 	    	}else{
 	    		comandaSB.append("**;"+total);
-		    	comandaSB.append(";;"+nomRest+comName+nom+comHora+comEnt+comLim+pagada+telnumber+"/rCHECKING/r A: /r R: /r E:/r;;;");
-		    	comandaSB.append(";;;;*"+comments+"#0x0D0x0A");
+		    	comandaSB.append(";;"+"---------------------------;"+nomRest+"%%"+comName+"%%"+nom+"%%"+comHora+"%%"+comEnt+"%%"+comLim+"%%---------------------------%%"+
+		    					pagada+"%%---------------------------%%"+telnumber+"%%---------------------------%%"+"CHECKING/r A: %% R: %% E: %%;;;");
+		    	comandaSB.append(";;;*"+comments+"%%---------------------------#0x0D0x0A");
 	    	}
 	    	
 	    	return comandaSB.toString();
