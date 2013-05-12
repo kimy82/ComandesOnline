@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -34,9 +35,9 @@ public class ComandesManager {
     public String getList(@QueryParam("a") String txt,@QueryParam("o") String orderNum) {
               
         if(txt!=null && orderNum!=null){
-        	if(txt.equals("AC001")){
+        	 synchronized (this){ 
         		removeLineFromFile(this.context.getRealPath("/Downloads/comanda"+txt+".txt"),orderNum);
-        	}
+        	 }
         }
         
         
@@ -57,7 +58,8 @@ public class ComandesManager {
     						@QueryParam("comanda") String comanda,
     						@QueryParam("comandaName") String comName,
     						@QueryParam("comandaHora") String comHora,
-    						@QueryParam("comandaEntrega") String comEnt,
+    						@QueryParam("comandaEntregaRang") String comEnt,
+    						@QueryParam("comandaEntregaRest") String comEntRest,
     						@QueryParam("comandaLimit") String comLim,
     						@QueryParam("pagada") String pagada,
     						@QueryParam("comment") String comments,
@@ -68,15 +70,15 @@ public class ComandesManager {
     		
     		try {
     			
-    			
-				BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );							
-				String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,
-												   diahora, address,telnumber,comName,comHora,comEnt,comLim,
-												   pagada,comments,nomRest, admin);
-				writer.append(System.lineSeparator()+comandaBuild);
-				writer.flush();
-				writer.close();
-				
+    			 synchronized (this){ 
+					BufferedWriter writer = new BufferedWriter( new FileWriter( this.context.getRealPath("/Downloads/comanda"+resId+".txt") , true ) );							
+					String comandaBuild = buildComanda(resId, orderNum, comanda, deliveryCharge,total,nom,
+													   diahora, address,telnumber,comName,comHora,comEnt,comEntRest, comLim,
+													   pagada,comments,nomRest, admin);
+					writer.append(System.lineSeparator()+comandaBuild);
+					writer.flush();
+					writer.close();
+    			 }
     			
 				
 			} catch (IOException e) {
@@ -98,44 +100,44 @@ public class ComandesManager {
     public void removeLineFromFile(String file, String lineToRemove) throws RestFullException {
 
     	try {
-
-    	  File inFile = new File(file);
-
-    	  if (!inFile.isFile()) {
-    	    System.out.println("Parameter is not an existing file");
-    	    return;
-    	  }
-
-    	  //Construct the new file that will later be renamed to the original filename.
-    	  File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
-
-    	  BufferedReader br = new BufferedReader(new FileReader(file));
-    	  PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
-
-    	  String line = null;
-    	  while ((line = br.readLine()) != null) {
-
-    	    if (!line.trim().contains(lineToRemove)) {
-
-    	      pw.println(line);
-    	      pw.flush();
-    	    }
-    	  }
-    	  pw.close();
-    	  br.close();
-
-    	  //Delete the original file
-    	  if (!inFile.delete()) {    		  
-    		  System.out.println("Could not delete file");
-    		  throw new RestFullException("Could not delete file");
-    	  }
-
-    	  //Rename the new file to the filename the original file had.
-    	  if (!tempFile.renameTo(inFile)){
-    		  System.out.println("Could not rename file");
-    		  throw new RestFullException("Could not rename file");
-    	  }
-    	    
+    		 synchronized (this){ 
+		    	  File inFile = new File(file);
+		
+		    	  if (!inFile.isFile()) {
+		    	    System.out.println("Parameter is not an existing file");
+		    	    return;
+		    	  }
+		
+		    	  //Construct the new file that will later be renamed to the original filename.
+		    	  File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+		
+		    	  BufferedReader br = new BufferedReader(new FileReader(file));
+		    	  PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+		
+		    	  String line = null;
+		    	  while ((line = br.readLine()) != null) {
+		
+		    	    if (!line.trim().contains(lineToRemove)) {
+		
+		    	      pw.println(line);
+		    	      pw.flush();
+		    	    }
+		    	  }
+		    	  pw.close();
+		    	  br.close();
+		
+		    	  //Delete the original file
+		    	  if (!inFile.delete()) {    		  
+		    		  System.out.println("Could not delete file");
+		    		  throw new RestFullException("Could not delete file");
+		    	  }
+		
+		    	  //Rename the new file to the filename the original file had.
+		    	  if (!tempFile.renameTo(inFile)){
+		    		  System.out.println("Could not rename file");
+		    		  throw new RestFullException("Could not rename file");
+		    	  }
+    		 }
 
     	}
     	catch (FileNotFoundException ex) {
@@ -152,24 +154,31 @@ public class ComandesManager {
     							String deliveryCharge, String total, String nom,
     							String diahora,String address,String telnumber,
     							String comName, String comHora,String comEnt,
-    							String comLim,String pagada, String comments, 
-    							String nomRest, String admin) throws Exception {
+    							String comEntRest,String comLim,String pagada, 
+    							String comments, String nomRest, String admin) throws Exception {
     	try{
     		
     	
-	    	StringBuffer comandaSB = new StringBuffer("#"+resId+"**"+orderNum+"*"+comanda);
-	    	
-	    	if(admin.equals("true")){
-		    	comandaSB.append("**;"+total);
-		    	comandaSB.append(";;"+"---------------------------;"+comName+"%%"+nom+"%%"+address+"%%"+comHora+"%%"+comEnt+
-		    					 "%%"+comLim+"%%---------------------------%%"+pagada+"%%---------------------------%%"+telnumber+"%%---------------------------"+";;;");
-		    	comandaSB.append(";;;*"+comments+"%%---------------------------#0x0D0x0A");
+	    	StringBuffer comandaSB = new StringBuffer("#"+resId+"*1*"+orderNum+"*"+comanda);
+	    	DecimalFormat formateador = new DecimalFormat("####.##");
+	    	Double totalD = Double.parseDouble(total);
+	    	Double transport = Double.parseDouble(deliveryCharge);
+	    	totalD = totalD+transport;
+	    	String totalString =formateador.format(totalD);
+	    	if(admin.equals("true")){	    		
+	    		comandaSB.append(";1;Transport;"+deliveryCharge+";");
+		    	comandaSB.append("*0.0*0;"+totalString);
+		    	comandaSB.append(";4;"+"---------------------------;"+comName+"%%"+nom+"%%"+address+"%%"+diahora+"%%"+comHora+"%%"+comEnt+
+		    					 "%%"+comLim+"%%---------------------------%%"+pagada+"%%---------------------------%%"+telnumber+"%%---------------------------;"+diahora+";0;7");
+		    	comandaSB.append(";0;"+telnumber+";*"+comments+"%%---------------------------#0x0D0x0A");
 	    	}else{
-	    		comandaSB.append("**;"+total);
-		    	comandaSB.append(";;"+"---------------------------;"+nomRest+"%%"+comName+"%%"+nom+"%%"+comHora+"%%"+comEnt+"%%"+comLim+"%%---------------------------%%"+
-		    					pagada+"%%---------------------------%%"+telnumber+"%%---------------------------%%"+"CHECKING/r A: %% R: %% E: %%;;;");
-		    	comandaSB.append(";;;*"+comments+"%%---------------------------#0x0D0x0A");
+	    		comandaSB.append(";1;Transport;"+deliveryCharge+";");
+	    		comandaSB.append("*0.0*0;"+totalString);
+		    	comandaSB.append(";4;"+"---------------------------;"+nomRest+"%%"+comName+"%%"+nom+"%%"+diahora+"%%"+comHora+"%%"+comEntRest+"%%---------------------------%%"+
+		    					pagada+"%%---------------------------%%"+telnumber+"%%---------------------------%%"+"CHECKING/r A: %% R: %% E: %%;"+diahora+";0;7");
+		    	comandaSB.append(";0;"+telnumber+";*"+comments+"%%---------------------------#0x0D0x0A");
 	    	}
+	    	 //#AC001*1*10005*1;Chiken;3.00;2;Beef;6.00;3;rice;2.50;*1.0*0;12.50;4;Tom;Address;15:47 03-08-10;113;7;cod:;008612345678;*Comment#0x0D0x0A
 	    	
 	    	return comandaSB.toString();
 	    	
